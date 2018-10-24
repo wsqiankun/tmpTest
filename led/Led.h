@@ -1,11 +1,12 @@
 #ifndef __LED_H__
 #define __LED_H__
 
-#define BLINK_1HZ 500
-#define BLINK_2HZ 250
-#define BLINK_5HZ 100
+
+#define ERR_LED_NAME "error-led"
 
 #include <string>
+#include "../common/common.h"
+
 
 using namespace std;
 
@@ -25,6 +26,7 @@ public:
 
 private:
     const string LEDPATH = "/sys/class/leds/";
+    // const string LEDPATH = "/opt/leds/";
     string ledFullName;
     string ledBtightnessFile;
     string ledTriggerFile;
