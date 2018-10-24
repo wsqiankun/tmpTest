@@ -17,6 +17,7 @@ class Led
 public:
     Led(string ledName);
     ~Led(){};
+    int ledInit();
     int lightOn();
     int lightOff();
     int startBlink(int hz);
@@ -27,6 +28,7 @@ public:
 private:
     const string LEDPATH = "/sys/class/leds/";
     // const string LEDPATH = "/opt/leds/";
+    string ledName;
     string ledFullName;
     string ledBtightnessFile;
     string ledTriggerFile;

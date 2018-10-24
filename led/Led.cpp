@@ -9,6 +9,7 @@ extern "C"
     #include <unistd.h>
     #include <string.h>
     #include <fcntl.h>
+    #include <dirent.h>
 }
 
 #include "Led.h"
@@ -17,6 +18,7 @@ namespace zc55{
 
     Led::Led(string ledName)
     {
+        this->ledName = ledName;
         this->ledFullName = this->LEDPATH + ledName + '/';
         this->ledBtightnessFile = this->ledFullName + "brightness";
         this->ledTriggerFile = this->ledFullName + "trigger";
@@ -32,6 +34,16 @@ namespace zc55{
     #endif
     }
 
+    int Led::ledInit()
+    {
+        if(opendir(this->ledFullName.c_str()) == NULL)
+        {
+            cout << "led "<< this->ledName << "doesn't exist" << endl;
+            return -1;
+        }
+            
+        return 0;
+    }
 
     int Led::lightOn()
     {

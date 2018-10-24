@@ -1,5 +1,6 @@
 #include <iostream> 
 #include "led/Led.h"
+#include "key/Key.h"
 
 extern "C"
 {
@@ -10,13 +11,37 @@ extern "C"
     #include <unistd.h>
     #include <string.h>
     #include <fcntl.h>
+    #include <signal.h>
+    #include <pthread.h>
+}
+
+using namespace zc55;
+using namespace std;
+volatile int execFlag = 1;
+pthread_t key_thread = 0;
+
+void signal_handler(int sig)
+{
+    cout << "main thread end" << endl;
+    execFlag = 0;
+    // Key::threadFlag = 0;
 }
 
 int  main()
 {
-    zc55::Led led(ERR_LED_NAME);
-    
-    while(1)
+    signal(SIGINT, signal_handler);
+    signal(SIGKILL, signal_handler);
+    signal(SIGSTOP, signal_handler);
+
+    Led led(ERR_LED_NAME);
+    if(led.ledInit() < 0 )
+    {
+        return -1;
+    }
+
+  
+
+    while(execFlag)
     {
         led.lightOff();
         sleep(5);
@@ -27,6 +52,8 @@ int  main()
         led.stopBlink();
     
     }   
+
+    // pthread_join(key_thread, NULL);
 
     return 0;
 }

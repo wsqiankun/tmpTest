@@ -21,6 +21,7 @@ project(zc55proj)
 set(CMAKE_CXX_STANDARD 11)
 
 add_subdirectory(led)
+add_subdirectory(key)
 add_executable(zc55proj main.cpp)
 
-target_link_libraries(zc55proj ledlib)
+target_link_libraries(zc55proj ledlib keylib)
