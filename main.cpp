@@ -1,6 +1,4 @@
 #include <iostream> 
-#include "led/Led.h"
-#include "key/Key.h"
 
 extern "C"
 {
@@ -15,6 +13,9 @@ extern "C"
     #include <pthread.h>
 }
 
+#include "led/Led.h"
+#include "key/Key.h"
+#include "usbdetect/UsbDetector.h"
 
 using namespace std;
 using namespace zc55;
@@ -24,8 +25,8 @@ pthread_t key_thread = 0;
 void signal_handler(int sig)
 {
     cout << "main thread end" << endl;
-    execFlag = 0;
-    Key::threadFlag = 0;
+    execFlag = 0;  //main thread stop
+    Key::execFlag = 0; //key thread stop
 }
 
 int  main()
@@ -49,6 +50,12 @@ int  main()
         cout << "key thread start error" << endl;
         return -1;
     }
+
+    
+    UsbDetector usb(DEFAULT_INPUT_HOST_ADDR, 
+                    DEFAULT_OUTPUT_HOST_ADDR,
+                    DEFAULT_SDCARD_HOST_ADDR);
+
     pthread_join(key_thread, NULL);
     
     cout << "bye bye" << endl;

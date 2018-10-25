@@ -22,6 +22,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 add_subdirectory(led)
 add_subdirectory(key)
+add_subdirectory(usbdetect)
 add_executable(zc55proj main.cpp)
 
-target_link_libraries(zc55proj ledlib keylib pthread rt)
+target_link_libraries(zc55proj ledlib keylib usblib pthread rt)

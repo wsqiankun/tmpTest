@@ -21,7 +21,7 @@ extern "C"
 
 namespace zc55
 {
-    volatile int Key::threadFlag = 1;
+    volatile int Key::execFlag = 1;
 
     pthread_t Key::keyInit()
     {
@@ -103,7 +103,7 @@ namespace zc55
         maxfd =fd +1;
         int rc, err;
         
-        while (Key::threadFlag > 0)
+        while (Key::execFlag > 0)
         {
             tmp_rd = rd;
             tv.tv_sec = KEY_SELECT_DELAY;
