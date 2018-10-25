@@ -1,5 +1,5 @@
-#ifndef __KEY_H__
-#define __KEY_H__
+#ifndef __KEYS_H__
+#define __KEYS_H__
 
 #include <string>
 
@@ -14,8 +14,8 @@ namespace zc55
 class Key
 {
 public:
-  // Key(){};
-  // ~Key(){};
+  Key(){};
+  ~Key(){};
 
   int keyInit();
   static void* threadFunc(void *arg);
@@ -24,9 +24,9 @@ public:
 private: 
   const string keyName = "gpio-keys";
   string eventName;
+  int keyNum;
 public:
   static volatile int threadFlag;
-  int a;
 };
 
 } // namespace zc55

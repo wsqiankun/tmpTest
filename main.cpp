@@ -15,8 +15,9 @@ extern "C"
     #include <pthread.h>
 }
 
-using namespace zc55;
+
 using namespace std;
+using namespace zc55;
 volatile int execFlag = 1;
 pthread_t key_thread = 0;
 
@@ -24,7 +25,7 @@ void signal_handler(int sig)
 {
     cout << "main thread end" << endl;
     execFlag = 0;
-    // Key::threadFlag = 0;
+    Key::threadFlag = 0;
 }
 
 int  main()
@@ -39,7 +40,8 @@ int  main()
         return -1;
     }
 
-  
+    Key key;
+    key_thread = key.keyInit();
 
     while(execFlag)
     {
@@ -53,7 +55,7 @@ int  main()
     
     }   
 
-    // pthread_join(key_thread, NULL);
+    pthread_join(key_thread, NULL);
 
     return 0;
 }

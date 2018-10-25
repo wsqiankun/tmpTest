@@ -20,7 +20,7 @@ extern "C"
 namespace zc55
 {
     volatile int Key::threadFlag = 1;
-    
+
     int Key::keyInit()
     {
         int fd;
@@ -40,7 +40,7 @@ namespace zc55
                     this->eventName = string(buf);
                     close(fd);
                     #if DEBUG_PRINT > 0
-                    cout << "find gpio keys" << this->eventName << endl;
+                    cout << "find gpio Key" << this->eventName << endl;
                     #endif
                     break;
                 }
@@ -49,14 +49,14 @@ namespace zc55
         }
         if( i >= 32)
         {
-            cout << "can't find gpio-keys" << endl;
+            cout << "can't find gpio-Key" << endl;
             return -1;
         }
 
         // 创建thread
         if(pthread_create(&tidp, NULL, Key::threadFunc, (void*)this->eventName.c_str()) != 0)
         {
-            cout << "keys create thread error" << endl;
+            cout << "Key create thread error" << endl;
             return -2;
         }
 
@@ -116,4 +116,5 @@ namespace zc55
     {
 
     }
+
 }

@@ -16,7 +16,7 @@ class Led
 {
 public:
     Led(string ledName);
-    ~Led(){};
+    ~Led(){}
     int ledInit();
     int lightOn();
     int lightOff();
