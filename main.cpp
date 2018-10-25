@@ -33,6 +33,7 @@ int  main()
     signal(SIGINT, signal_handler);
     signal(SIGKILL, signal_handler);
     signal(SIGSTOP, signal_handler);
+    signal(SIGQUIT, signal_handler);
 
     Led led(ERR_LED_NAME);
     if(led.ledInit() < 0 )
@@ -40,23 +41,17 @@ int  main()
         return -1;
     }
 
+    led.startBlink(200,200);
     Key key;
     key_thread = key.keyInit();
-
-    while(execFlag)
+    if(key_thread <= 0)
     {
-        led.lightOff();
-        sleep(5);
-        led.lightOn();
-        sleep(5);
-        led.startBlink(200,200);
-        sleep(5);
-        led.stopBlink();
-    
-    }   
-
+        cout << "key thread start error" << endl;
+        return -1;
+    }
     pthread_join(key_thread, NULL);
-
+    
+    cout << "bye bye" << endl;
     return 0;
 }
 

@@ -11,6 +11,8 @@ extern "C"
     #include <errno.h> 
     #include <time.h> 
     #include <linux/input.h> 
+    #include <sys/select.h>
+    #include <time.h>
     #include <pthread.h>
 }
 
@@ -21,7 +23,7 @@ namespace zc55
 {
     volatile int Key::threadFlag = 1;
 
-    int Key::keyInit()
+    pthread_t Key::keyInit()
     {
         int fd;
         int i;
@@ -37,10 +39,11 @@ namespace zc55
                 ioctl(fd, EVIOCGNAME(sizeof(buf)), buf);
                 if(strncmp(this->keyName.c_str(), buf, strlen(this->keyName.c_str())) == 0)
                 {
-                    this->eventName = string(buf);
+                    this->eventName = string(name);
                     close(fd);
                     #if DEBUG_PRINT > 0
-                    cout << "find gpio Key" << this->eventName << endl;
+                    printf("buf:%s\n", name);
+                    cout << "find gpio Key " << this->eventName << endl;
                     #endif
                     break;
                 }
@@ -50,14 +53,14 @@ namespace zc55
         if( i >= 32)
         {
             cout << "can't find gpio-Key" << endl;
-            return -1;
+            return 0;
         }
 
         // 创建thread
         if(pthread_create(&tidp, NULL, Key::threadFunc, (void*)this->eventName.c_str()) != 0)
         {
             cout << "Key create thread error" << endl;
-            return -2;
+            return 0;
         }
 
         return tidp;
@@ -76,39 +79,81 @@ namespace zc55
 
         cout << "gpio key thread start..."<< endl;
         #if DEBUG_PRINT > 0 
-        printf("gpio key event :%s", (char*)arg);
+        printf("gpio key event :%s\n", (char*)arg);
         #endif
 
-        int fd;
+        int fd = 0;
+        fd_set rd, tmp_rd;
+        struct timeval tv;
+        struct input_event event;
+        int maxfd = 0;
+
+        FD_ZERO(&rd);        
         
-        if(fd = open((char*)arg, O_RDWR, 0) <=0 )
+        if((fd = open((char*)arg, O_RDONLY | O_NONBLOCK, 0)) < 0 )
+        // if(fd = open((char*)arg, O_RDONLY | O_NONBLOCK, 0) < 0 )  wrong
         {
             cout << "open event file error" << endl;
              //TODO: report error to main thread
 
             return NULL;
         }
-
-        int rc;
-        struct input_event event;
-        while (((rc = read(fd, &event, sizeof(event))) > 0) &&  (Key::threadFlag >= 0))
+        cout << "input fd " << fd << endl;
+        FD_SET(fd, &rd);
+        maxfd =fd +1;
+        int rc, err;
+        
+        while (Key::threadFlag > 0)
         {
-            if(event.type == EV_KEY)
+            tmp_rd = rd;
+            tv.tv_sec = KEY_SELECT_DELAY;
+            tv.tv_usec = 0;
+            err = select(maxfd, &tmp_rd, NULL, NULL, &tv);
+            if(err == 0)
             {
-                 if (event.code > BTN_MISC)
-                {
-                    printf("Button %d %s", event.code & 0xff, event.value ? "press" : "release");
-                }
-                else
-                {
-                    printf("Key %d (0x%x) %s", event.code & 0xff, event.code & 0xff, event.value ? "press" : "release");
-                    //TODO: report key
-                }
+                // #if DEBUG_PRINT >0
+                #if 0
+                cout << "key thread select timeout" << endl;
+                #endif
+
+                continue;
             }
+            else if(err < 0)
+            {
+                cout << "key thread select error" << endl;
+                break;
+            }
+            else
+            {
+                rc = read(fd, &event, sizeof(event));
+                if(rc <= 0)
+                {
+                    continue;
+                }
+
+
+                if(event.type == EV_KEY)
+                {
+                    if (event.code > BTN_MISC)
+                    {
+                        printf("Button %d %s\n", event.code & 0xff, event.value ? "press" : "release");
+                    }
+                    else
+                    {
+                        printf("Key %d (0x%x) %s\n", event.code & 0xff, event.code & 0xff, event.value ? "press" : "release");
+                        //TODO: report key
+                    }
+                }
+             
+                
+            }
+
+
+            
         }
         close(fd);
         #if DEBUG_PRINT > 0 
-        cout << "event file close thile thread closed" << endl;
+        cout << "event file close when thread closed" << endl;
         #endif
     }
 

@@ -7,6 +7,7 @@
 #define KEY_START 31
 #define KEY_UPDATE 22
 #define KEY_DESTROY 18
+#define KEY_SELECT_DELAY 1 //ms
 using namespace std;
 
 namespace zc55
@@ -17,7 +18,7 @@ public:
   Key(){};
   ~Key(){};
 
-  int keyInit();
+  pthread_t keyInit();
   static void* threadFunc(void *arg);
   static void reportKey();
 

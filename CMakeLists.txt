@@ -24,4 +24,4 @@ add_subdirectory(led)
 add_subdirectory(key)
 add_executable(zc55proj main.cpp)
 
-target_link_libraries(zc55proj ledlib keylib)
+target_link_libraries(zc55proj ledlib keylib pthread rt)
