@@ -20,9 +20,17 @@ project(zc55proj)
 
 set(CMAKE_CXX_STANDARD 11)
 
+# set(CMAKE_SKIP_BUILD_RPATH FALSE)
+# set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+# set(CMAKE_INSTALL_RPATH "")
+# set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+
+
+# add_subdirectory(common)
 add_subdirectory(led)
 add_subdirectory(key)
 add_subdirectory(usbdetect)
 add_executable(zc55proj main.cpp)
 
 target_link_libraries(zc55proj ledlib keylib usblib pthread rt)
+set_target_properties(zc55proj PROPERTIES LINK_FLAGS "-Wl,-rpath-link,.")

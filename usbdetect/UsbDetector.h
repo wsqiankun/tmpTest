@@ -23,18 +23,27 @@ public:
     UsbDetector(string inputHostAddr, string outputHostAddr, string sdcardHostAddr);
     ~UsbDetector(){};
 
-    static pthread_t threadFunc(void *arg);
+    pthread_t startMonitor();
+    void stopMonitor();
+    void parseString(string str, bool add);  //add: true add, false remove 
+
+    static void* threadFunc(void *arg);
     static volatile int execFlag;
     static vector<string> inputUsbDevice;
     static vector<string> outputUsbDevice;
     static vector<string> sdcardDevice;
-    
+    void reportDeviceChange();
+    int getReportFlag();
+    void setReportFlag(int flag);
+
 private:
     string cmd;
     string inputHostAddr;   //usb
     string outputHostAddr;  //usb
     string sdcardHostAddr;  //sd card
-
+    pthread_t monitorThreadId;
+    int reportFlag;
+    
 
 };
 

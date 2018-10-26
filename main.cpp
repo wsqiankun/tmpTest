@@ -20,17 +20,21 @@ extern "C"
 using namespace std;
 using namespace zc55;
 volatile int execFlag = 1;
-pthread_t key_thread = 0;
+
 
 void signal_handler(int sig)
 {
     cout << "main thread end" << endl;
     execFlag = 0;  //main thread stop
     Key::execFlag = 0; //key thread stop
+    UsbDetector::execFlag = 0;
 }
 
 int  main()
 {
+    pthread_t key_thread = 0;
+    pthread_t usb_thread = 0;
+
     signal(SIGINT, signal_handler);
     signal(SIGKILL, signal_handler);
     signal(SIGSTOP, signal_handler);
@@ -55,8 +59,10 @@ int  main()
     UsbDetector usb(DEFAULT_INPUT_HOST_ADDR, 
                     DEFAULT_OUTPUT_HOST_ADDR,
                     DEFAULT_SDCARD_HOST_ADDR);
+    usb_thread = usb.startMonitor();
 
     pthread_join(key_thread, NULL);
+    pthread_join(usb_thread, NULL);
     
     cout << "bye bye" << endl;
     return 0;
