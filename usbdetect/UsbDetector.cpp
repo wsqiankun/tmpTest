@@ -28,12 +28,18 @@ namespace zc55{
     vector<string> UsbDetector::sdcardDevice;
     vector<string> UsbDetector::outputUsbDevice;
     UsbDetectorCB UsbDetector::usbDetectorCB = UsbDetector::usbDetectorCBDummy;
-
+    UsbDetectorMonitorExitCb UsbDetector::monitorExitCb = UsbDetectorMonitorExitCbDummy;
 
     void UsbDetector::setUsbDetectorCB(UsbDetectorCB cb)
     {
         this->usbDetectorCB = cb;
     }
+
+    void UsbDetector::setMonitorExitCb(UsbDetectorMonitorExitCb cb)
+    {
+        this->monitorExitCb = cb;
+    }
+
 
     UsbDetector::UsbDetector(string inputHostAddr, string outputHostAddr, string sdcardHostAddr)
     {
@@ -41,7 +47,23 @@ namespace zc55{
         this->inputHostAddr = inputHostAddr;
         this->outputHostAddr = outputHostAddr;
         this->reportFlag = 0;
+       // UsbDetector::reportDeviceChange();
 
+    }
+
+    UsbDetector::UsbDetector(string inputHostAddr, string outputHostAddr, string sdcardHostAddr, UsbDetectorCB cb)
+    {
+        this->sdcardHostAddr = sdcardHostAddr;
+        this->inputHostAddr = inputHostAddr;
+        this->outputHostAddr = outputHostAddr;
+        this->reportFlag = 0;
+        this->usbDetectorCB = cb;        
+
+        UsbDetector::reportDeviceChange();
+    }
+
+    int UsbDetector::initUsbDetector()
+    {
         UsbDetector::inputUsbDevice.clear();
         UsbDetector::sdcardDevice.clear();
         UsbDetector::outputUsbDevice.clear();
@@ -67,7 +89,7 @@ namespace zc55{
         if(NULL == (fstream = popen(buf, "r")))   //查询sd，usb host端接入的设备
         {
             cout<<"usbdetector exec cmd error" << endl;
-            return;
+            return -1;
         }
 
         memset(buf, 0, sizeof(buf));
@@ -88,8 +110,7 @@ namespace zc55{
             this->parseString(str, true);
         }
 
-        UsbDetector::reportDeviceChange();
-
+        return 0;
     }
     
 
@@ -160,7 +181,8 @@ namespace zc55{
         }
 
         
-        detetcor->reportDeviceChange();
+        // detetcor->reportDeviceChange();
+        UsbDetector::monitorExitCb();
         cout << "usb detector thread exit" << endl;
 
     }
@@ -170,6 +192,8 @@ namespace zc55{
     {
         pthread_t tid;
         int ret;
+
+        this->initUsbDetector();
 
         ret = pthread_create( &tid, NULL, UsbDetector::threadFunc, this);
         if(ret != 0)
@@ -214,6 +238,10 @@ namespace zc55{
         }
     }
 
+    void UsbDetector::UsbDetectorMonitorExitCbDummy()
+    {
+
+    }
 
     void UsbDetector::parseString(string str, bool add)
     {

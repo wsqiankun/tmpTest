@@ -20,23 +20,27 @@ namespace zc55{
     typedef void (*UsbDetectorCB)(vector<string> inputUsb, 
                                    vector<string> outputUsb,
                                    vector<string> sdCard);
+    typedef void (*UsbDetectorMonitorExitCb)();
 
 class UsbDetector{
 
 public:
     UsbDetector(string inputHostAddr, string outputHostAddr, string sdcardHostAddr);
+    UsbDetector(string inputHostAddr, string outputHostAddr, string sdcardHostAddr, UsbDetectorCB cb);
     ~UsbDetector(){};
 
+    int initUsbDetector();
     pthread_t startMonitor();
     void stopMonitor();
     void parseString(string str, bool add);  //add: true add, false remove 
     void setUsbDetectorCB(UsbDetectorCB cb);
+    void setMonitorExitCb(UsbDetectorMonitorExitCb cb);
     void reportDeviceChange();
     int getReportFlag();
     void setReportFlag(int flag);
     static void* threadFunc(void *arg);   
     static void usbDetectorCBDummy(vector<string> inputUsb, vector<string> outputUsb, vector<string> sdCard);
-
+    static void UsbDetectorMonitorExitCbDummy();
 
 private:
     string cmd;
@@ -52,6 +56,7 @@ public:
     static vector<string> outputUsbDevice;
     static vector<string> sdcardDevice;
     static UsbDetectorCB usbDetectorCB;   
+    static UsbDetectorMonitorExitCb monitorExitCb;
 
 };
 
