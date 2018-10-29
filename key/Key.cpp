@@ -22,8 +22,24 @@ extern "C"
 namespace zc55
 {
     volatile int Key::execFlag = 1;
+    KeyCB Key::keyCB = Key::keyCBDummy;
 
-    pthread_t Key::keyInit()
+    Key::Key(string name)
+    {
+        this->keyName = name;
+    }
+
+    void Key::keyCBDummy(unsigned char keyCode, KeyStatus pressed)
+    {
+        printf("Key %d  %s\n",keyCode, (pressed == KEY_PRESSED ) ? "pressed" : "released");
+    }
+
+    void Key::setKeyCB(KeyCB cb)
+    {
+        Key::keyCB = cb;
+    }
+
+    pthread_t Key::startKeyMonitor()
     {
         int fd;
         int i;
@@ -67,6 +83,11 @@ namespace zc55
 
     }
 
+    void Key::stopKeyMonitor()
+    {
+        Key::execFlag = 0;
+    }
+
     void* Key::threadFunc(void *arg)
     {
         if(arg == NULL)
@@ -106,8 +127,8 @@ namespace zc55
         while (Key::execFlag > 0)
         {
             tmp_rd = rd;
-            tv.tv_sec = KEY_SELECT_DELAY;
-            tv.tv_usec = 0;
+            tv.tv_sec = KEY_SELECT_DELAY_S;
+            tv.tv_usec = KEY_SELECT_DELAY_US;
             err = select(maxfd, &tmp_rd, NULL, NULL, &tv);
             if(err == 0)
             {
@@ -136,12 +157,14 @@ namespace zc55
                 {
                     if (event.code > BTN_MISC)
                     {
-                        printf("Button %d %s\n", event.code & 0xff, event.value ? "press" : "release");
+                        // printf("Button %d %s\n", event.code & 0xff, event.value ? "press" : "release");
+                         Key::keyCB( event.code & 0xff,  event.value ?  KEY_PRESSED : KEY_RELEASED);
                     }
                     else
                     {
-                        printf("Key %d (0x%x) %s\n", event.code & 0xff, event.code & 0xff, event.value ? "press" : "release");
+                        // printf("Key %d (0x%x) %s\n", event.code & 0xff, event.code & 0xff, event.value ? "press" : "release");
                         //TODO: report key
+                        Key::keyCB( event.code & 0xff,  event.value ?  KEY_PRESSED : KEY_RELEASED);
                     }
                 }
              

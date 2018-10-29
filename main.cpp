@@ -47,8 +47,8 @@ int  main()
     }
 
     led.startBlink(200,200);
-    Key key;
-    key_thread = key.keyInit();
+    Key key("gpio-keys");
+    key_thread = key.startKeyMonitor();
     if(key_thread <= 0)
     {
         cout << "key thread start error" << endl;
@@ -60,6 +60,12 @@ int  main()
                     DEFAULT_OUTPUT_HOST_ADDR,
                     DEFAULT_SDCARD_HOST_ADDR);
     usb_thread = usb.startMonitor();
+    if(usb_thread <= 0)
+    {
+        cout << "usb thread start error" << endl;
+        Key::execFlag = 0;
+        return -1;
+    }
 
     pthread_join(key_thread, NULL);
     pthread_join(usb_thread, NULL);

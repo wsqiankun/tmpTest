@@ -27,6 +27,13 @@ namespace zc55{
     vector<string> UsbDetector::inputUsbDevice;
     vector<string> UsbDetector::sdcardDevice;
     vector<string> UsbDetector::outputUsbDevice;
+    UsbDetectorCB UsbDetector::usbDetectorCB = UsbDetector::usbDetectorCBDummy;
+
+
+    void UsbDetector::setUsbDetectorCB(UsbDetectorCB cb)
+    {
+        this->usbDetectorCB = cb;
+    }
 
     UsbDetector::UsbDetector(string inputHostAddr, string outputHostAddr, string sdcardHostAddr)
     {
@@ -181,30 +188,32 @@ namespace zc55{
 
     void UsbDetector::reportDeviceChange()
     {
-        #if DEBUG_PRINT > 0
+        UsbDetector::usbDetectorCBDummy(this->inputUsbDevice, this->outputUsbDevice, this->sdcardDevice);
+    }
 
+    void UsbDetector::usbDetectorCBDummy(vector<string> inputUsb, vector<string> outputUsb, vector<string> sdCard)
+    {
         vector<string>::iterator it;
         cout << "*********************************" <<endl;
         cout << "usb input device:"<<endl;
-        for(it = UsbDetector::inputUsbDevice.begin(); it != UsbDetector::inputUsbDevice.end(); it++)
+        for(it = inputUsb.begin(); it !=inputUsb.end(); it++)
         {
             cout<<" "<< *it << endl;
         }
 
         cout << "usb output device:"<<endl;
-        for(it = UsbDetector::outputUsbDevice.begin(); it != UsbDetector::outputUsbDevice.end(); it++)
+        for(it = outputUsb.begin(); it != outputUsb.end(); it++)
         {
             cout<<" "<< *it << endl;
         }
 
         cout << "sd card device:"<<endl;
-        for(it = UsbDetector::sdcardDevice.begin(); it != UsbDetector::sdcardDevice.end(); it++)
+        for(it = sdCard.begin(); it != sdCard.end(); it++)
         {
             cout<<" "<< *it << endl;
         }
-
-        #endif
     }
+
 
     void UsbDetector::parseString(string str, bool add)
     {
