@@ -183,6 +183,7 @@ namespace zc55{
         
         // detetcor->reportDeviceChange();
         UsbDetector::monitorExitCb();
+        close(sockid);
         cout << "usb detector thread exit" << endl;
 
     }
