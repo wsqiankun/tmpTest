@@ -32,7 +32,7 @@ add_subdirectory(key)
 add_subdirectory(usbdetect)
 add_subdirectory(FPGA)
 add_subdirectory(lcd)
-add_executable(zc55proj main.cpp)
+add_executable(zc55proj main.cpp bmp.c)
 
 target_link_libraries(zc55proj ledlib keylib usblib fpgalib lcdlib pthread rt)
 set_target_properties(zc55proj PROPERTIES LINK_FLAGS "-Wl,-rpath-link,.")

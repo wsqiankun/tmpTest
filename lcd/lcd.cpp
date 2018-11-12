@@ -56,6 +56,22 @@ namespace zc55{
         return this->clearScreen();
     }
 
+    int Lcd::clearScreen()
+    {
+        int i;
+        unsigned char cmd[3];
+        unsigned char data[128] = {0};
+        cmd[0] = 0xb0;
+        cmd[1] = 0x00;
+        cmd[2] = 0x10;
+        for(i = 0; i< 8; i++)
+        {
+            this->lcd_trans_cmd(cmd, 3);
+            this->lcd_trans_data(data, 128);
+            cmd[0]++;
+        }
+    }
+
     int Lcd::lcd_trans_cmd(unsigned char *buf, int n)
     {
         int cs, dc;
@@ -160,27 +176,27 @@ namespace zc55{
         int i;
         int ret;
 
-        if((x < 0) || (x >= 128))
+        if((x < 0) || (x > 128))
         {
-            cout << "lcd : x value error" << endl;
+            cout << "lcd : x value error:" << x << endl;
             return -1;
         }
 
-        if((y < 0) || (x >= 64))
+        if((y < 0) || (y > 64))
         {
-            cout << "lcd : y value error" << endl;
+            cout << "lcd : y value error: " << y << endl;
             return -1;
         }
 
-        if((x + width) >= 128)
+        if((x + width) > 128)
         {
-            cout << "lcd : width value error" << endl;
+            cout << "lcd : width value error:"<<width << endl;
             return -1;
         }
 
-        if((y + height) >= 64)
+        if((y + height) > 64)
         {
-            cout << "lcd : height value error" << endl;
+            cout << "lcd : height value error:" <<height<< endl;
             return -1;
         }
 
@@ -189,7 +205,7 @@ namespace zc55{
         
         for(i = 0; i < npage; i++)
         {
-            ret = this->lcd_address(x , page + i);
+            ret = this->lcd_address(x , page);
             if(ret < 0)
             {
                return -1;
@@ -235,13 +251,12 @@ namespace zc55{
         unsigned int addr;
         unsigned char addr_high, addr_mid, addr_low;
         unsigned char font_buf[32];
-        unsigned char page = (x+7) / 8;
-        unsigned char col = y;
+        unsigned char page = (y+7) / 8;
+        unsigned char col = x;
         while(text[i] > 0x00)
         {
             if(((text[i] >= 0xb0) && (text[i] <= 0xf7)) && (text[i+1] >= 0xa1))
             {
-                printf("0x%02X 0x%02X ", text[i], text[i] + 1);
                 addr = (text[i] - 0xb0) *94;
                 addr += (text[i + 1] - 0xa1) + 846;
                 addr *= 32;
@@ -249,13 +264,12 @@ namespace zc55{
                 addr_mid = (addr >> 8) & 0xff;
                 addr_low = addr & 0xff;
                 this->getCharacterFromRom(addr_high, addr_mid, addr_low, font_buf, 32);
-                this->showImage(page*8, col, 16, 16, font_buf);
+                this->showImage(col, y, 16, 16, font_buf);
                 i += 2;
                 col += 16;
             }
             else if(((text[i] >= 0xa1) && (text[i] <= 0xa3)) && (text[i+1] >= 0xa1))
             {
-                printf("0x%02X 0x%02X ", text[i], text[i] + 1);
                 addr = (text[i] - 0xa1) *94;
                 addr += (text[i + 1] - 0xa1) + 846;
                 addr *= 32;
@@ -263,13 +277,12 @@ namespace zc55{
                 addr_mid = (addr >> 8) & 0xff;
                 addr_low = addr & 0xff;
                 this->getCharacterFromRom(addr_high, addr_mid, addr_low, font_buf, 32);
-                this->showImage(page*8, col, 16, 16, font_buf);
+                this->showImage(col, y, 16, 16, font_buf);
                 i += 2;
                 col += 16;
             }
             else if((text[i] >= 0x20) && (text[i] < 0x7e))
             {
-                printf("0x%02X ", text[i]);
                 addr = (text[i] - 0x20);
                 addr *= 16;
                 addr += 0x3cf80;
@@ -278,7 +291,7 @@ namespace zc55{
                 addr_mid = (addr >> 8) & 0xff;
                 addr_low = addr & 0xff;
                 this->getCharacterFromRom(addr_high, addr_mid, addr_low, font_buf, 16);
-                this->showImage(page*8, col, 8, 16, font_buf);
+                this->showImage(col, y, 8, 16, font_buf);
                 i += 1;
                 col += 8;
             }
