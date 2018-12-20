@@ -213,7 +213,7 @@ namespace zc55{
 
     void UsbDetector::reportDeviceChange()
     {
-        UsbDetector::usbDetectorCBDummy(this->inputUsbDevice, this->outputUsbDevice, this->sdcardDevice);
+        UsbDetector::usbDetectorCB(this->inputUsbDevice, this->outputUsbDevice, this->sdcardDevice);
     }
 
     void UsbDetector::usbDetectorCBDummy(vector<string> inputUsb, vector<string> outputUsb, vector<string> sdCard)

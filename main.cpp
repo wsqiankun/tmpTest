@@ -87,18 +87,19 @@ int main()
     // }
 
     // led.startBlink(200,200);
-    // Key key("gpio-keys");
+    Key key("gpio-keys");
     // key.setKeyCB(genDataOnKey);
-    // key_thread = key.startKeyMonitor();
-    // if(key_thread <= 0)
-    // {
-    //     cout << "key thread start error" << endl;
-    //     return -1;
-    // }
+    key_thread = key.startKeyMonitor();
+    if(key_thread <= 0)
+    {
+        cout << "key thread start error" << endl;
+        return -1;
+    }
 
     UsbDetector usb(DEFAULT_INPUT_HOST_ADDR,
                     DEFAULT_OUTPUT_HOST_ADDR,
                     DEFAULT_SDCARD_HOST_ADDR);
+    usb.initUsbDetector();
     usb_thread = usb.startMonitor();
     if (usb_thread <= 0)
     {
@@ -107,15 +108,16 @@ int main()
         return -1;
     }
 
-    Lcd lcd("/dev/spi-lcd32766.0");
-    lcd.init();
-    lcd.showImage(0, 8, 32, 32, usb_logo32X32);
-    lcd.showImage(104, 16, 24, 24, usb_logo24X24);
-    lcd.showStr(34, 8, (unsigned char *)"hello");
-    lcd.showStr(34, 24, (unsigned char *)"»ªÐ¾");
 
-    // pthread_join(key_thread, NULL);
-    // pthread_join(usb_thread, NULL);
+    // Lcd lcd("/dev/spi-lcd32766.0");
+    // lcd.init();
+    // lcd.showImage(0, 8, 32, 32, usb_logo32X32);
+    // lcd.showImage(104, 16, 24, 24, usb_logo24X24);
+    // lcd.showStr(34, 8, (unsigned char *)"hello");
+    // lcd.showStr(34, 24, (unsigned char *)"ï¿½ï¿½Ð¾");
+
+    pthread_join(key_thread, NULL);
+    pthread_join(usb_thread, NULL);
 
     // delete (fpga);
     cout << "bye bye" << endl;
