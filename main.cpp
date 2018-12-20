@@ -99,7 +99,6 @@ int main()
     UsbDetector usb(DEFAULT_INPUT_HOST_ADDR,
                     DEFAULT_OUTPUT_HOST_ADDR,
                     DEFAULT_SDCARD_HOST_ADDR);
-    usb.initUsbDetector();
     usb_thread = usb.startMonitor();
     if (usb_thread <= 0)
     {

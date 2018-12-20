@@ -126,7 +126,7 @@ namespace zc55{
 
         
         cout << "usb detector thread start ..."<<endl;
-        detetcor->setReportFlag(0);
+        // detetcor->setReportFlag(0);
 
         sockid = socket(AF_NETLINK, SOCK_RAW, NETLINK_KOBJECT_UEVENT);
         client.nl_family = AF_NETLINK;
@@ -213,7 +213,9 @@ namespace zc55{
 
     void UsbDetector::reportDeviceChange()
     {
-        UsbDetector::usbDetectorCB(this->inputUsbDevice, this->outputUsbDevice, this->sdcardDevice);
+        UsbDetector::usbDetectorCB(UsbDetector::inputUsbDevice, 
+                                    UsbDetector::outputUsbDevice,
+                                    UsbDetector::sdcardDevice);
     }
 
     void UsbDetector::usbDetectorCBDummy(vector<string> inputUsb, vector<string> outputUsb, vector<string> sdCard)
